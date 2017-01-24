@@ -58,7 +58,6 @@ def main():
     #解析出MTG的Source_Dir和Destination_Dir并清空
     myPath = os.path.dirname(abspath(getsourcefile(lambda:0)))
     shellFile = os.path.join(myPath, 'copyAndRename.bat')
-    print 'shellFile:', shellFile
     with open(shellFile) as f:
         content = f.readlines()
     content = [x.strip() for x in content]
@@ -90,9 +89,9 @@ def main():
 #     xcloudDestDir = r'D:\xCloud_ECS\desktop_data\project\ECS\Mydemo'
     xcloudDestDir = os.getcwd()
     targetDir = os.path.join(xcloudDestDir, newestDirOfModel)
-    print targetDir
     deleteFolder(targetDir)
     shutil.copytree(Destination_Dir_MTG, targetDir)
+    print '脚本已拷贝至'.decode('utf-8'), targetDir
 
 if __name__ == '__main__':
     main()
