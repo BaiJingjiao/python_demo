@@ -1,10 +1,10 @@
 #-*- coding: utf-8 -*-
 import re 
 
-str = r'	<MAAaddress>10.177.107.43</MAAaddress>'
-str2 = r'#	<MAAaddress>10.177.107.43</MAAaddress>'
+str = r'	<XXXaddress>10.177.107.65</XXXaddress>'
+str2 = r'#	<XXXaddress>10.177.107.65</XXXaddress>'
 
-regex = r'^<MAAaddress>(.*)</MAAaddress>.*'
+regex = r'^<XXXaddress>(.*)</XXXaddress>.*'
 m1 = re.search(regex,str.strip())
 if m1:
 	print m1.groups()[0]
