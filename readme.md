@@ -8,3 +8,6 @@ http://stackoverflow.com/questions/19623100/java-access-db-connection
 http://stackoverflow.com/questions/19623100/java-access-db-connection
 
 http://stackoverflow.com/questions/21955256/manipulating-an-access-database-from-java-without-odbc
+
+Unicode things
+http://stackoverflow.com/questions/21129020/how-to-fix-unicodedecodeerror-ascii-codec-cant-decode-byte/35444608#35444608
