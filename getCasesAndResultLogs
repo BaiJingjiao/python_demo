@@ -1,0 +1,263 @@
+﻿# -*- coding:utf-8 -*-
+'''
+#====================================================================================
+#版权 (C) 华为技术有限公司  测试工具部
+#====================================================================================
+#   @Description:   Demo UseCase
+#   @Author:        xCloud 
+#   @Date:  
+#   @ModifyRecord:  
+#====================================================================================
+'''
+from xCloudFrame import *
+class xCloudTestCase(xCloudAutoFrame.TestCaseFrame):
+    def Precondition(self):
+        '''
+        #====================================================================================
+        #   @Method:  用例初始化
+        #   @Param:
+        #   @Return:   
+        #   @ModifyRecord:  
+        #====================================================================================
+        '''     
+
+        self.verificationErrors = []
+        pass    
+
+
+    def Procedure(self):
+        '''
+        #====================================================================================
+        #   @Method:  详细定义用例执行过程
+        #   @Param:
+        #   @Return:   
+        #   @ModifyRecord:  
+        #====================================================================================
+        '''     
+        import os
+        import re
+        import time
+        import sys
+        reload(sys)  
+        sys.setdefaultencoding('utf8')
+        import socket
+        import paramiko
+        
+        
+     
+        #===========================================================
+        # 使用D:\xCloud_ECS\ECM\tracelog\ECM001 日志文件
+        # 提取svn下载的用例及其路径信息，写入文件
+        #===========================================================
+        def listCases(path, date=None):
+            #确保D:\\mytools存在                
+            mydir = 'D:\\mytools'
+            if os.path.isdir(mydir):
+                self.log('%s exist!' % (mydir))
+            else:
+                os.makedirs(mydir)
+                self.log('%s created successfully' % (mydir))
+             
+            dateStr = ''
+            if None == date:
+                #使用当天时间
+                dateStr = get_time_stamp(0,0,0,'%Y-%m-%d')
+            else:
+                dateStr = date
+                      
+            with open(path) as f:
+                ecm001 = f.readlines()
+             
+            #得到排序后的用例列表
+            cases = []
+            for line in ecm001:
+                m = re.search(r'^\['+dateStr+r' .*\].*INFO-http.*V600R006C10B999/Cases/SDV(.*).*\[.\\DownloadFromSVN\.cpp.*\]', line)
+                if m:
+                    self.log(  m.group(1) )
+                    cases.append(m.group(1))
+            cases = sorted(cases, reverse=True)
+             
+            #将结果写入文件,新生成文件保存结果，并保留原结果，便于对比
+            myname = socket.getfqdn(socket.gethostname())
+            myaddr = socket.gethostbyname(myname)
+            timeStamp = get_time_stamp(0,0,0,'%Y-%m-%d_%H-%M-%S')
+            filename = myaddr+'_cases_'+timeStamp+'.txt'
+            filepath = os.path.join(mydir, filename)
+            f = file(filepath, 'a+')
+            #添加计数器，便于对比
+            count = 0
+            for case in cases:
+                count = count + 1
+                f.write(str(count) + '---' + case + '\n')
+            f.close()
+            return myaddr, filepath, filename
+         
+        def get_time_stamp(hour, min, sec, formatStr='%Y-%m-%d %X'):
+            '''
+                                产生自定义格式的时间戳
+            %Y-%m-%d %X
+            %Y/%m/%d %H:%M:%S.%f
+            '''
+            ISOTIMEFORMAT = formatStr        
+            if 0 == hour and 0 == min and 0 == sec:
+                stamp = time.strftime(ISOTIMEFORMAT)
+            else:
+                currentSecond = time.time() 
+                newSecond = currentSecond + (hour*3600 + min*60 + sec)  
+                stamp = time.strftime(ISOTIMEFORMAT, time.localtime(newSecond)) 
+            return stamp
+         
+        def sshConnect(server):
+            host = str(server.get('host'))
+            port = int(server.get('port')) 
+            user = str(server.get('user'))
+            pwd = str(server.get('pwd'))
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.load_system_host_keys()
+            client.connect(host, port, user, pwd, timeout=10)
+            return client
+         
+        def ftpGet(server, localpath, remotepath):
+            print 'start getting file %s ...' % remotepath
+            import paramiko
+            client = sshConnect(server)
+            sftp_handle = client.open_sftp()
+            sftp_handle.get(remotepath, localpath)
+            client.close()
+            print 'finished getting file %s, and saved it to %s' % (remotepath, localpath)    
+                 
+        def ftpPut(server, localpath, remotepath):
+            self.log(  'start uploading file: %s to %s' % (localpath.decode(sys.stdout.encoding).encode('utf8'), remotepath))
+            import paramiko
+            client = sshConnect(server)
+            sftp_handle = client.open_sftp()
+            sftp_handle.put(localpath, remotepath, confirm = True)
+            sftp_handle.close()
+            client.close()   
+            self.log( 'uploading file: %s finished' % (localpath.decode(sys.stdout.encoding).encode('utf8')) )
+         
+        def getLastModifiedFile(filenamePrefix):
+            mydir = r'D:\\xCloud_ECS\\log'
+            mydir = os.path.join('D:\\', 'xCloud_ECS', 'log')
+            filePath = ""
+            d = {}
+            for root, directory, files in os.walk(mydir):
+                for file in files:
+                    file_utf8 = file.decode(sys.stdout.encoding).encode('utf8')
+                    if file_utf8.startswith(filenamePrefix) :
+                        filePath = os.path.join(mydir, file)
+                        from datetime import datetime
+                        modifiedTime = datetime.fromtimestamp(
+                                            float(os.path.getmtime(filePath))).strftime('%Y%m%d%H%M%S')
+                        d[file_utf8] = modifiedTime
+ 
+            sortedList = sorted(d.items(), key=lambda x: x[1], reverse=True)
+            if 0 == len(sortedList):
+                return 
+            return os.path.join(mydir, sortedList[0][0])
+         
+        server = {
+                  'host':'10.171.218.107',
+                  'port':22,
+                  'user':'root',
+                  'pwd':'huawei'
+                  }
+         
+        #将本执行机上执行的用例（含路径信息），写入文件，
+        #并将其ftp上传到10.171.218.107：/opt/cases_on_6dian1_executors/
+        dateStr = get_time_stamp(0,0,0,'%Y-%m-%d')
+        myaddr, filepath, filename = listCases(r'D:\xCloud_ECS\ECM\tracelog\ECM001.log', dateStr)
+        #ftp上传到10.171.218.107，/opt/cases_on_6dian1_executors/
+        remotepath = '/opt/cases_on_6dian1_executors/'+filename
+        
+        '''
+        #SSHException: Error reading SSH protocol banner[Errno 10053],有时报错，重跑成功
+        The reason for this confusion is that you are assuming that SFTP is just like FTP, but its not. 
+        These are completely different protocols. 
+        SFTP is file transfer on top of SSH while FTP is the 30+ year old protocol described in RFC959. 
+        And FTPS (not SFTP) is SSL support added to this old protocol.
+
+        To access an FTP or FTPS server you can use ftplib in Python.
+        To access your server with SFTP use port 22 (ssh) not port 21 (ftp) as target port, 
+        provided that there is an SSH server at this port which also allows SFTP.
+        '''
+        ftpPut(server, filepath, remotepath)
+        
+        #读取生成的文件
+        with open(filepath) as f:
+            casesFullPath = f.readlines()
+             
+        #按照文件中的用例信息，从'D:\\xCloud_ECS\\log'目录下，找到最新的日志文件，
+        #并将其上传至10.171.218.107：/opt/cases_on_6dian1_executors/logs/
+        name = ''
+        for case in casesFullPath:
+            m = re.search(r'.*/(.*)$', case)
+            if m:
+                name = m.group(1).decode(sys.stdout.encoding).encode('utf8')
+                if ('getCasesAndResultLogs' == name.strip() 
+                    or 'backupLogFolder' == name.strip()) :
+                    continue
+                fileNamePrefix = name.strip() + '_' + dateStr
+                logFile = getLastModifiedFile(fileNamePrefix) #找到最新的日志文件
+                if None == logFile:
+                    self.log('找不到以[%s]为前缀的文件' % (fileNamePrefix))
+                    continue
+                n = re.search(r'.*\\(.*)$', logFile)
+                remoteName = ''
+                if n:
+                    remoteName = m.group(1).strip().decode(sys.stdout.encoding).encode('utf8')
+                if None != logFile:
+                    remotePath = os.path.join('/opt/cases_on_6dian1_executors/logs/' + myaddr + '_' + remoteName + '.txt')
+                    ftpPut(server, logFile.decode('utf8').encode(sys.stdout.encoding), remotePath)   
+        '''
+        #运行用例任务前，清空'D:\\xCloud_ECS\\log'目录，这样用例任务运行完，这里面就是本次运行结果，无需再判断（是否从svn下载，以及是否为最新的）
+        #直接将其上传至10.171.218.107：/opt/cases_on_6dian1_executors/logs/
+        #由于失败重跑，或某些用例要对接多个环境跑，等原因，废弃此方式，仍然按照从svn下载的用例提取执行日志---2017-10-24
+        mydir = r'D:\\xCloud_ECS\\log'
+        name = ''
+        logFileRegex = '(.*)_\d{4}-\d{2}-\d{2} \d{6}.txt'
+        for root, directory, files in os.walk(mydir):
+            for name in files:
+                name = name.decode(sys.stdout.encoding).encode('utf8') #处理windows文件名编码
+                m = re.search(logFileRegex, name)
+                filename = ''
+                if (not(m)
+                    or name.startswith('getCasesAndResultLogs') 
+                    or name.startswith('backupLogFolder')) :
+                    continue
+#                 logFile = r'D:\\xCloud_ECS\\log\\' + name
+                filename = m.groups()[0]
+                logFile = getLastModifiedFile(filename) #找到最新的日志文件
+                n = re.search(r'.*\\(.*)$', logFile)
+                remoteName = ''
+                if n:
+                    remoteName = name
+                if None != logFile:
+                    remotePath = os.path.join('/opt/cases_on_6dian1_executors/logs/' + myaddr + '_' + remoteName + '.txt')
+                    ftpPut(server, logFile.decode('utf8').encode(sys.stdout.encoding), remotePath)
+        '''          
+    
+    def Postcondition(self):
+        '''
+        #====================================================================================
+        #   @Method:  用例执行完毕后的清理过程
+        #   @Param:
+        #   @Return:   
+        #   @ModifyRecord:  
+        #====================================================================================
+        '''     
+
+        self.assertEqual([], self.verificationErrors)
+        pass
+    
+    def Failure(self):
+        '''
+        #====================================================================================
+        #   @Method:  用例执行失败后的清理过程
+        #   @Param:
+        #   @Return:   
+        #   @ModifyRecord:  
+        #====================================================================================
+        '''    
+        pass  
