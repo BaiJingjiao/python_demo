@@ -1,0 +1,121 @@
+# -*- coding:utf-8 -*- 
+
+from flask import Flask, jsonify, Request
+from flask_restful import reqparse, abort, Api, Resource, request
+from struct import *
+import pickle
+import json
+import os
+from werkzeug.routing import  BaseConverter
+
+
+app = Flask(__name__)
+api = Api(app)
+report = open('mocker.log', 'a+')
+
+flag_for_this_time = None
+request_for_this_time = None
+
+class RegexConverter(BaseConverter):
+    """
+    正则转化的类
+    """
+    def __init__(self,url_map,*items):
+        super(RegexConverter,self).__init__(url_map)
+        self.regex=items[0]
+
+class MyEncoder2(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.integer):
+            return int(obj)
+        elif isinstance(obj, bytes):
+            print("bytes")
+            return str(obj, encoding='utf-8')
+        elif isinstance(obj, numpy.floating):
+            return float(obj)
+        elif isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        else:
+            return super(MyEncoder2, self).default(obj)
+
+app.url_map.converters['regex'] = RegexConverter
+
+def log(text):
+    report.write(text)
+
+def read_file(filename):
+    file = open(filename,'r',encoding='utf-8')
+    print(filename)
+    s = json.load(file) 
+    print(s)
+    return s
+
+parser = reqparse.RequestParser()
+
+class DataPrepare(Resource):
+    def post(self):
+        args = parser.parse_args()
+        request_data = request.get_data()
+        print('request_data [%s]' % request_data)
+        str_request_data = request_data.decode('utf-8')
+        dict_request_data = json.loads(str_request_data)
+        flag = dict_request_data.get('flag')
+        print('flag [%s]' % flag)
+        eua_response = dict_request_data.get('eua_response')
+        print('eua_response [%s]' % eua_response)
+        file = open(os.path.join('xxxxxx_data',flag),'w',encoding='utf-8')
+        file.write(json.dumps(eua_response))
+        return flag + ' saved.'
+
+class SetFlag(Resource):
+    def post(self):
+        args = parser.parse_args()
+        request_data = request.get_data()
+        global request_for_this_time
+        request_for_this_time = request_data.decode("utf-8")
+        print('request_data [%s]' % request_data)
+        str_request_data = request_data.decode('utf-8')
+        dict_request_data = json.loads(str_request_data)
+        flag = dict_request_data.get('flag')
+        global flag_for_this_time
+        flag_for_this_time = flag
+        print('flag_for_this_time [%s]' % flag_for_this_time)
+        return "set flag_for_this_time succeeded"
+
+class GetRequest(Resource):
+    def get(self):
+        global request_for_this_time
+        request_data_for_testcase = request_for_this_time
+        request_for_this_time = None
+        return request_data_for_testcase
+
+
+class XXXX(Resource):
+    def post(self, XXXXX):
+        print('your xxxxxx is [ %s ]' % (xxxxxx))
+        args = parser.parse_args()
+        request_data = request.get_data()
+        print('type(request_data) is [ %s ]' % (type(request_data)))
+        global request_for_this_time
+        # request_for_this_time = request_data.decode("utf-8")
+        request_for_this_time = str(request_data, "utf-8")
+        print('request_for_this_time [%s]' % request_for_this_time)
+        return jsonify(request_for_this_time)
+
+
+##
+## Actually setup the Api resource routing here
+##
+api.add_resource(DataPrepare, '/data_prepare')
+api.add_resource(SetFlag, '/flag_set')
+api.add_resource(GetRequest, '/request_get')
+
+
+# XXXXX API
+api.add_resource(XXXX, '/3/XXXXX/<XXXXX>')
+
+
+if __name__ == '__main__':
+    from OpenSSL import SSL
+    context = ('server_auto.cer', 'server_auto.key')
+    app.run('0.0.0.0', debug=True, port=xxxx, ssl_context=context)
