@@ -1,0 +1,54 @@
+
+```
+dggtsp279-or:/data01/home/redis/redis3/src # ./redis-cli -c -h 10.41.33.40 -p 7000 -a 123456
+10.41.33.40:7000> config set masterauth xxx4redis
+OK
+10.41.33.40:7000> config set requirepass xxx4redis
+OK
+10.41.33.40:7000> config rewrite
+OK
+10.41.33.40:7000> exit
+```
+
+```
+dggtsp279-or:/data01/home/redis/redis3/src # ./redis-cli -c -h 10.41.33.40 -p 7005 -a xxx4redis
+10.41.33.40:7005> cluster info
+cluster_state:ok
+cluster_slots_assigned:16384
+cluster_slots_ok:16384
+cluster_slots_pfail:0
+cluster_slots_fail:0
+cluster_known_nodes:6
+cluster_size:3
+cluster_current_epoch:10
+cluster_my_epoch:10
+cluster_stats_messages_sent:2236623909
+cluster_stats_messages_received:2117268453
+10.41.33.40:7005> cluster nodes
+8526ecd6be5c920b1205156910263f7bf546bda2 10.41.33.40:7004 slave dc9e6ed985f949baf6ea96f9e1f9c7937593991d 0 1550823290507 5 connected
+89f69e913bed36d97f3f0dac059fcc1bf4f451a3 10.41.33.40:7005 myself,master - 0 0 10 connected 10923-16383
+dc9e6ed985f949baf6ea96f9e1f9c7937593991d 10.41.33.40:7001 master - 0 1550823289448 2 connected 5461-10922
+4a28bfbdde8d8c637e2f5d8e3d1a79736464fe10 10.41.33.40:7000 master - 0 1550823284215 1 connected 0-5460
+1ba7c899792dfd3296e4166d16409e91e905b24c 10.41.33.40:7002 slave 89f69e913bed36d97f3f0dac059fcc1bf4f451a3 0 1550823287327 10 connected
+411c83077b844bf8e36aab0f0540bcacfd0c2a6f :0 slave,fail,noaddr 4a28bfbdde8d8c637e2f5d8e3d1a79736464fe10 1541583521895 1541583030367 4 disconnected
+10.41.33.40:7005> exit
+```
+<<<
+查询
+<<<
+
+```
+[redis@dggtsp135-or:/data01/home/redis/log]
+$ redis-cli -h 10.41.31.33 -p 6378
+10.41.31.33:6378> auth xxx4redis
+OKF
+10.41.31.33:6378> keys ES:RC_TOP*
+1) "ES:RC_TOP:687547"
+(5.05s)
+10.41.31.33:6378> 
+
+
+
+
+10.41.31.34:6378> zrange ES:RC_TOP:724239 0 -1 withscores
+```
