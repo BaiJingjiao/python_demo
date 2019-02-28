@@ -1,0 +1,10 @@
+https://stackoverflow.com/questions/36352033/how-to-make-https-get-call-with-certificate-in-rest-assured-java
+https://kaminlee.iteye.com/blog/1894698
+https://www.toolsqa.com/rest-assured/authentication-and-authorization-in-rest-webservices/
+
+
+sout=System.out.println();
+soutp=System.out.println("");
+soutv=System.out.println("变量名 = " + 变量);
+soutm=System.out.println("当前类名.当前方法");
+psvm=public static void main(String[] args) {}
