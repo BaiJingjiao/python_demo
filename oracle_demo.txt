@@ -1,0 +1,22 @@
+C:\Users\sxxxxxxx\Downloads\hwuc_perfomance_test_docs\script123>sqlplus ecpp/ecpp@dgdb141142-cls:1521/eeeeee07.xxxxxx.com
+
+SQL*Plus: Release 11.2.0.1.0 Production on 星期五 1月 18 14:46:49 2019
+
+Copyright (c) 1982, 2010, Oracle.  All rights reserved.
+
+
+连接到:
+Oracle Database 11g Enterprise Edition Release 11.2.0.4.0 - 64bit Production
+With the Partitioning, Real Application Clusters, Automatic Storage Management,
+OLAP,
+Data Mining and Real Application Testing options
+
+SQL> SET SQLBLANKLINES ON
+SQL> SET TIMING ON
+SQL> @p2punread_stats.sql
+SQL> @groupmsgid_read_stats.sql
+SQL> @group_his_stats.sql
+SQL> @p2phis_stats_d1.sql
+SQL> @p2phis_stats_d2.sql
+SQL> @p2phis_stats_d3.sql
+SQL> @p2phis_stats_d4.sql
