@@ -1,0 +1,20 @@
+  980  2018-08-20 11:38:37 mkdir -p ./demoCA/newcerts
+  981  2018-08-20 11:38:49 touch ./demoCA/index.txt
+  982  2018-08-20 11:39:02 echo 00 > ./demoCA/serial
+  983  2018-08-20 11:39:07 cd demoCA/
+
+  985  2018-08-20 11:40:08 openssl genrsa -out ca_auto.key 1024
+  986  2018-08-20 11:41:07 openssl req -new -out ca_auto.csr -key ca_auto.key -keyform PEM
+  987  2018-08-20 11:46:28 openssl x509 -req -in ca_auto.csr -out ca_auto.cer -signkey ca_auto.key -CAcreateserial -days 3650
+
+  989  2018-08-20 11:47:53 openssl pkcs12 -export -clcerts -in ca_auto.cer -inkey ca_auto.key -out ca_auto.p12
+  990  2018-08-20 11:51:03 keytool -import -v -trustcacerts -storepass 123456 -alias auto_alias -file ca_auto.cer -keystore ca_auto.jks
+  991  2018-08-20 13:55:03 cd demoCA/
+ 
+  993  2018-08-20 13:55:37 openssl genrsa -out server_auto.key 1024
+  994  2018-08-20 13:56:12 openssl req -new -out server_auto.csr -key server_auto.key
+  995  2018-08-20 13:59:18 openssl x509 -req -in server_auto.csr -out server_auto.cer -signkey server_auto.key -CA ca_auto.cer -CAkey ca_auto.key -CAcreateserial -days 3650
+  996  2018-08-20 14:00:02 openssl pkcs12 -export -clcerts -in server_auto.cer -inkey server_auto.key -out server_auto.p12
+  997  2018-08-20 14:01:55 keytool -import -v -trustcacerts -storepass 123456 -alias server_alias -file server_auto.cer -keystore server_auto.jks
+
+ 1002  2018-08-27 15:41:29 openssl pkcs12 -in server_auto.p12 -out server_auto.pem -nodes
