@@ -1,3 +1,14 @@
+
+### WebUI自动化测试，常用工具
+[Firebug Command Line API](http://getfirebug.com/wiki/index.php/Command_Line_API)
+[Eclipse EGit插件](http://blog.csdn.net/luckarecs/article/details/7427605)
+
+### Haroopress Download URL
+http://pad.haroopress.com/user.html
+
+### TesterHome 社区专用 [科学] 上网服务
+https://testerhome.com/topics/3378
+
 https://stackoverflow.com/questions/36352033/how-to-make-https-get-call-with-certificate-in-rest-assured-java
 https://kaminlee.iteye.com/blog/1894698
 https://www.toolsqa.com/rest-assured/authentication-and-authorization-in-rest-webservices/
