@@ -2,19 +2,21 @@
 
 class MyHelper:
 
-    def get_timestamp(self, hour=0, min=0, sec=0, format=None):
+    def get_timestamp(self, hour=0, min=0, sec=0, format='%Y-%m-%d %H:%M:%S.%f'):
         '''
         helper = MyHelper()
         helper.get_timestamp() #1513665702.0115976
         helper.get_timestamp(format='%Y-%m-%d %H:%M:%S %z') #2017-12-19 14:48:23 +0800
-
         '''
+        import time
+        from datetime import datetime
         seconds = time.time()
         new_seconds = seconds + (hour*3600 + min*60 + sec) 
         if format == None:
             return new_seconds
         else:
-            return time.strftime(format, time.localtime(new_seconds))
+            # return time.strftime(format, time.localtime(new_seconds))
+            return datetime.utcfromtimestamp(new_seconds).strftime(format)
 
     def get_combinations(self, option_values_list, num):
         import itertools
