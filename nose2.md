@@ -2,6 +2,8 @@
 pip install junit2html
 junit2html nose2-junit.xml testrun.html
 http://stackoverflow.com/questions/11241781/python-unittests-in-jenkins
+
+https://www.dev2qa.com/python-3-unittest-html-and-xml-report-example/
 </pre>
 
 <pre>
