@@ -1,5 +1,8 @@
+<pre>
 pip install junit2html
 junit2html nose2-junit.xml testrun.html
+http://stackoverflow.com/questions/11241781/python-unittests-in-jenkins
+</pre>
 
 <pre>
 [junit-xml]
