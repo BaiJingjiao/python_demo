@@ -40,7 +40,7 @@ clear-handlers = true
 
 </pre>
 
-<pre>
+```
 <html>  
 <head>  
     <meta charset="UTF-8" />  
@@ -73,4 +73,4 @@ clear-handlers = true
 
 </html>
 
-</pre>
+```
